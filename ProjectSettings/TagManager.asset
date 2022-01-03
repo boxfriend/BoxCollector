@@ -11,7 +11,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Clickables
   - 
   - 
   - 
@@ -38,6 +38,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 604956839
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Foreground
+    uniqueID: 3294334721
+    locked: 0
+  - name: Drops
+    uniqueID: 1956244019
+    locked: 0
+  - name: UI
+    uniqueID: 976119965
     locked: 0
