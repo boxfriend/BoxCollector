@@ -26,7 +26,14 @@ namespace Boxfriend
             _rb2d.velocity = _type == BoxType.BETTER ? (Vector2.down * _speed * 1.5f) : (Vector2.down * _speed);
 
             _renderer.enabled = true;
-            _renderer.color = _type == BoxType.DEATH ? Color.black : _defaultColor;
+            
+            _renderer.color = type switch {
+                BoxType.DEATH => Color.black,
+                BoxType.BETTER => Color.green,
+                BoxType.NORMAL => _defaultColor,
+                _ => _renderer.color
+            };
+            
             GetComponent<Collider2D>().enabled = true;
         }
         

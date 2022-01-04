@@ -1,18 +1,18 @@
+using MessagePack;
 namespace Boxfriend
 {
-	
-	public readonly struct SessionData
+	[MessagePackObject(keyAsPropertyName: true)]
+	public struct SessionData
 	{
-		private readonly int _score, _lives, _highScore;
-		public int Score => _score;
-		public int Lives => _lives;
-		public int HighScore => _highScore;
+		public int Score { get; }
+		public int Lives { get; }
+		public int HighScore { get; }
 
 		public SessionData (int score, int highScore, int lives)
 		{
-			_score = score;
-			_highScore = highScore;
-			_lives = lives;
+			Score = score;
+			HighScore = highScore;
+			Lives = lives;
 		}
 	}
 }
