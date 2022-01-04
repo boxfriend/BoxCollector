@@ -23,15 +23,14 @@ namespace Boxfriend
         {
             _type = type;
            
-            _rb2d.velocity = _type == BoxType.BETTER ? (Vector2.down * _speed * 1.5f) : (Vector2.down * _speed);
+            _rb2d.velocity = _type == BoxType.BETTER ? (Vector2.down * _speed * 2f) : (Vector2.down * _speed);
 
             _renderer.enabled = true;
             
             _renderer.color = type switch {
                 BoxType.DEATH => Color.black,
                 BoxType.BETTER => Color.green,
-                BoxType.NORMAL => _defaultColor,
-                _ => _renderer.color
+                BoxType.NORMAL => _defaultColor
             };
             
             GetComponent<Collider2D>().enabled = true;
@@ -45,14 +44,14 @@ namespace Boxfriend
 
         private void GimmePoints ()
         {
-            var points = _type == BoxType.BETTER ? 5 : 1;
+            var points = _type == BoxType.BETTER ? 2 : 1;
             points = _type == BoxType.DEATH ? -1 : points;
             OnBoxClick?.Invoke(points);
         }
 
         private void FixedUpdate ()
         {
-            if(transform.position.y < -5)
+            if(transform.position.y < -6)
                 Spawner.Release(this);
         }
 

@@ -19,10 +19,9 @@ namespace Boxfriend
 
 		private void UpdateUI (SessionData data)
 		{
-			_score.text = data.Score.ToString();
-			_lives.text = data.Lives.ToString();
-			_highScore.text = data.HighScore.ToString();
-
+			_score.text = $"Score: {data.Score}";
+			_lives.text = $"Lives: {data.Lives}";
+			_highScore.text = $"High Score: {data.HighScore}";
 		}
 	}
 }

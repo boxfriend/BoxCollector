@@ -13,27 +13,49 @@ namespace Boxfriend
     {
         public int Score { get; private set; }
         public int HighScore { get; private set; }
-        public int Lives { get; private set; } = 3;
+        public int Lives
+        {
+            get => _lives;
+            private set 
+            {
+                _lives = value;
+                if(_lives < 0)
+                    OnGameOver?.Invoke();
+            }
+        }
 
         public static event Action<SessionData> OnUpdateStats;
+        public static event Action OnGameOver;
 
         private static readonly SessionData _defaultData = new(0,0,3);
-        
+        private SessionData _data;
+        private int _lives = 3;
+
         private void OnEnable ()
         {
             Box.OnBoxClick += ProcessClick;
+            OnGameOver += GameOver;
         }
         private void OnDisable ()
         {
             Box.OnBoxClick -= ProcessClick;
+            OnGameOver -= GameOver;
         }
 
-        private void Start ()
+        private async void Start ()
         {
-            var load = LoadSettings();
-            HighScore = load.Result.HighScore;
-            Score = load.Result.Score;
-            Lives = load.Result.Lives;
+            await LoadData();
+
+            if (_data.Lives <= 0)
+            {
+                var data = new SessionData(0, _data.HighScore, 3);
+                _data = data;
+            }
+            
+            Lives = _data.Lives;
+            Score = _data.Score;
+            HighScore = _data.HighScore;
+            OnUpdateStats?.Invoke(_data);
         }
 
         private void ProcessClick (int i)
@@ -46,36 +68,37 @@ namespace Boxfriend
                 Score += i;
                 HighScore = Score > HighScore ? Score : HighScore;
             }
-            var data = new SessionData(Score, HighScore, Lives);
-            OnUpdateStats?.Invoke(data);
+            _data = new SessionData(Score, HighScore, Lives);
+            OnUpdateStats?.Invoke(_data);
         }
 
-        private async Task<SessionData> LoadSettings (string fileName = "SaveData.box")
+        private async void GameOver ()
+        {
+            Debug.Log("Game Over");
+            await WriteData(_data);
+            //TODO: add restart stuff probably
+        }
+
+        private async Task LoadData (string fileName = "SaveData.box")
         {
             var file = $@"{Application.persistentDataPath}\{fileName}";
             
-            if (!File.Exists(file)) await WriteSettings(_defaultData);
+            if (!File.Exists(file)) await WriteData(_defaultData);
 
             await using var fileStream = new FileStream(file, FileMode.Open);
             using var streamReader = new StreamReader(fileStream);
-            var str = streamReader.ReadToEndAsync();
-            var json = MessagePackSerializer.ConvertFromJson(str.Result);
-            var mPack = MessagePackSerializer.Deserialize<SessionData>(json);
-            
-            OnUpdateStats?.Invoke(mPack);
-            return mPack;
+            var data = MessagePackSerializer.DeserializeAsync<SessionData>(fileStream);
+            _data = data.Result;
         }
         
-        private async Task WriteSettings (SessionData data, string fileName = "SaveData.box")
+        private async Task WriteData (SessionData data, string fileName = "SaveData.box")
         {
             var path = $"{Application.persistentDataPath}";
             var file = $@"{path}\{fileName}";
             
             await using var fileStream = new FileStream(file, FileMode.OpenOrCreate);
-            await using var streamWriter = new StreamWriter(fileStream);
-            var json = MessagePackSerializer.SerializeToJson(data);
-            await streamWriter.WriteAsync(json);
-            streamWriter.Close();
+            var json = MessagePackSerializer.Serialize(data);
+            await fileStream.WriteAsync(json);
             fileStream.Close();
         }
         
