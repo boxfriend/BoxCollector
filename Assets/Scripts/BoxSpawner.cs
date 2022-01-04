@@ -14,8 +14,9 @@ namespace Boxfriend
         private ObjectPool<Box> _boxPool;
 
         [SerializeField] private Box _boxPrefab;
-
-        private Task spawning;
+        
+        [SerializeField] private int _delay = 2000;
+        
 
         private void Awake ()
         {
@@ -31,7 +32,7 @@ namespace Boxfriend
 
         private void Start ()
         {
-            spawning = SpawnBoxes();
+            SpawnBoxes();
         }
 
         private void GetFromPool (Box box)
@@ -44,13 +45,14 @@ namespace Boxfriend
             box.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             box.GetComponent<Renderer>().enabled = false;
             box.GetComponent<Collider2D>().enabled = false;
+            box.transform.position = transform.position;
         }
 
         public void Release (Box box) => _boxPool.Release(box);
 
         private async Task SpawnBoxes ()
         {
-            var delay = 2000;
+            var delay = _delay;
             while (true)
             {
                 _boxPool.Get();

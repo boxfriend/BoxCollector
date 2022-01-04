@@ -10,7 +10,7 @@ namespace Boxfriend
     {
         [SerializeField] private Rigidbody2D _rb2d;
         [SerializeField] private SpriteRenderer _renderer;
-        [SerializeField] private float _speed;
+        [SerializeField] private float _speed = 1.5f;
         [SerializeField] private BoxType _type;
         [SerializeField] private Color _defaultColor;
 
@@ -43,12 +43,17 @@ namespace Boxfriend
             OnBoxClick?.Invoke(points);
         }
 
+        private void FixedUpdate ()
+        {
+            if(transform.position.y < -5)
+                Spawner.Release(this);
+        }
+
         private void Reset ()
         {
             _rb2d = GetComponent<Rigidbody2D>();
             _renderer = GetComponent<SpriteRenderer>();
             _defaultColor = _renderer.color;
-            _speed = 1.5f;
         }
         
         public enum BoxType
